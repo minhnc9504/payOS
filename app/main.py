@@ -6,10 +6,10 @@ from contextlib import asynccontextmanager
 import time
 import os
 from payos.types import CreatePaymentLinkRequest
-from app.database import engine, Base, get_db
-from app.models import User, Order
-from app.auth import get_password_hash, verify_password, create_access_token, get_current_admin
-from app.payos_config import payos_client 
+from database import engine, Base, get_db
+from models import User, Order
+from auth import get_password_hash, verify_password, create_access_token, get_current_admin
+from payos_config import payos_client 
 
 # --- LIFESPAN: Chạy khi khởi động Server ---
 # --- LIFESPAN: Chạy khi khởi động Server ---
