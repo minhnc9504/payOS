@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0">Tạo Link Thanh Toán</h5>
+            </div>
+            <div class="card-body">
+                <form action="/create-payment-link" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn ngân hàng nhận</label>
+                       
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số tiền (VND)</label>
+                        <input type="number" class="form-control" name="amount" min="1000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội dung</label>
+                        <input type="text" class="form-control" name="description" maxlength="25" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success fw-bold">Tạo Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 p-3">
+            <h5 class="fw-bold mb-3">Lịch sử giao dịch</h5>
+            
+            <table id="orderTable" class="table table-hover align-middle w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.order_code }}</strong></td>
+                        <td class="text-danger fw-bold">{{ "{:,.0f}".format(order.amount) }} đ</td>
+                        <td>
+                            {% if order.status == 'PAID' %}
+                                <span class="badge bg-success">Thành công</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Đang chờ</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ order.created_at.strftime('%H:%M %d/%m/%Y') }}</td>
+                        <td>
+                            {% if order.checkout_url %}
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="copyLink('{{ order.checkout_url }}')" 
+                                    title="Copy link thanh toán">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                            <a href="{{ order.checkout_url }}" target="_blank" class="btn btn-sm btn-link">Mở</a>
+                            {% else %}
+                            <span class="text-muted small">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Kích hoạt tính năng Sort, Filter, Search tự động
+    $('#orderTable').DataTable({
+        "order": [[ 3, "desc" ]], // Mặc định sắp xếp theo thời gian mới nhất
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json" // Tiếng Việt
+        }
+    });
+});
+
+function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        alert("Đã copy link giao dịch này!");
+    });
+}
+</script>
+{% endblock content %}
